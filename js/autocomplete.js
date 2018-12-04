@@ -19,6 +19,12 @@
             var item_element = document.createElement("LI");
             item_element.value = item.value;
             item_element.innerHTML = item.text;
+
+            item_element.addEventListener("click", function (e) {
+                list_element.removeChild(this);
+                removeItemFromList(item);
+            });
+
             list_element.appendChild(item_element);
         });
     }
@@ -28,7 +34,15 @@
     }
 
     var addItemToList = function (item) {
-        items_list.push(item);
+        !listContainsItem(item) && items_list.push(item);
+    }
+
+    var removeItemFromList = function (item) {
+        items_list = items_list.filter(i => i.value !== item.value)
+    }
+
+    var listContainsItem = function (item) {
+        return items_list.filter(i => i.value === item.value).length > 0;
     }
 
     var init = function (inp, arr) {
