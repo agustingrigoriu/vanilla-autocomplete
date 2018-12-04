@@ -54,6 +54,17 @@
 
     var init = function (inp, arr) {
 
+        //Creating the items-list
+        var autocomplete_element = document.getElementById("autocomplete"),
+        items_list_element = document.createElement("UL");
+
+        items_list_element.className="items-list";
+        items_list_element.id = "items-list";
+        
+        autocomplete_element.insertAdjacentElement("beforeend", items_list_element);
+
+
+
         /*the autocomplete function takes two arguments,
     the text field element and an array of possible autocompleted values:*/
         var currentFocus;
@@ -88,8 +99,7 @@
                             selectedValue = selectedItem.value,
                             selectedText = selectedItem.innerHTML;
 
-                        inp.value = '';
-
+                        inp.value = "";
                         //Adding item to a list
                         var item = {
                             value: selectedValue,
