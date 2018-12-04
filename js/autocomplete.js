@@ -16,12 +16,19 @@
 
         var list_element = document.getElementById("items-list");
         items_list.forEach(item => {
-            var item_element = document.createElement("LI");
+            var item_element = document.createElement("LI"),
+            remove_element = document.createElement("SPAN");
+
+            remove_element.className = "remove-item";
+            remove_element.innerHTML = " x";
+
             item_element.value = item.value;
             item_element.innerHTML = item.text;
 
-            item_element.addEventListener("click", function (e) {
-                list_element.removeChild(this);
+            item_element.appendChild(remove_element);
+
+            remove_element.addEventListener("click", function (e) {
+                list_element.removeChild(item_element);
                 removeItemFromList(item);
             });
 
@@ -80,7 +87,8 @@
                         var selectedItem = this.getElementsByTagName("input")[0],
                             selectedValue = selectedItem.value,
                             selectedText = selectedItem.innerHTML;
-                        inp.value = selectedValue;
+
+                        inp.value = '';
 
                         //Adding item to a list
                         var item = {
