@@ -64,7 +64,6 @@
         autocomplete_element.insertAdjacentElement("beforeend", items_list_element);
 
 
-
         /*the autocomplete function takes two arguments,
     the text field element and an array of possible autocompleted values:*/
         var currentFocus;
