@@ -1,7 +1,7 @@
 <?php
-$resultado = array();
-$resultado [0] ['id'] = 80;
-$resultado [0] ['descripcion'] = 'Argentina';
+    $url = './data.json';
+    $json = file_get_contents($url);
+    $json_data = json_decode($json, true);
 
-echo json_encode($resultado);
+    echo json_encode($json_data);
 ?>

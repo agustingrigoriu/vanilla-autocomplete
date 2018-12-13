@@ -10,6 +10,18 @@
         document.getElementById("items-list").innerHTML = "";
     }
 
+    var saveItemListValues = function () {
+        var item_list_values = document.getElementById("item-list-values");
+
+        item_list_values.value = getItemListValues();
+    }
+
+    var getItemListValues = function () {
+        return items_list.map((item) => {
+            return item.value;
+        })
+    }
+
     var renderItemList = function () {
 
         clearItemList();
@@ -17,7 +29,7 @@
         var list_element = document.getElementById("items-list");
         items_list.forEach(item => {
             var item_element = document.createElement("LI"),
-            remove_element = document.createElement("SPAN");
+                remove_element = document.createElement("SPAN");
 
             remove_element.className = "remove-item";
             remove_element.innerHTML = " x";
@@ -34,6 +46,8 @@
 
             list_element.appendChild(item_element);
         });
+
+        saveItemListValues();
     }
 
     var getItemList = function () {
@@ -56,13 +70,18 @@
 
         //Creating the items-list
         var autocomplete_element = document.getElementById("autocomplete"),
-        items_list_element = document.createElement("UL");
+            hidden_element = document.createElement("INPUT"),
+            items_list_element = document.createElement("UL");
 
-        items_list_element.className="items-list";
+        items_list_element.className = "items-list";
         items_list_element.id = "items-list";
-        
-        autocomplete_element.insertAdjacentElement("beforeend", items_list_element);
 
+        /*create a HIDDEN INPUT element that will contain the array of values:*/
+        hidden_element.hidden = true;
+        hidden_element.id = "item-list-values";
+
+        autocomplete_element.insertAdjacentElement("beforeend", items_list_element);
+        autocomplete_element.appendChild(hidden_element);
 
         /*the autocomplete function takes two arguments,
     the text field element and an array of possible autocompleted values:*/
@@ -78,31 +97,37 @@
             a = document.createElement("DIV");
             a.setAttribute("id", this.id + "autocomplete-list");
             a.setAttribute("class", "autocomplete-items");
+
             /*append the DIV element as a child of the autocomplete container:*/
             this.parentNode.appendChild(a);
             /*for each item in the array...*/
             for (i = 0; i < arr.length; i++) {
+                var item = arr[i],
+                    description = item && item.text,
+                    desc_substr = description && description.substr(0, val.length),
+                    desc_substr_rest = description && description.substr(val.length);
                 /*check if the item starts with the same letters as the text field value:*/
-                if (arr[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
+                if (desc_substr.toUpperCase() == val.toUpperCase()) {
                     /*create a DIV element for each matching element:*/
                     b = document.createElement("DIV");
                     /*make the matching letters bold:*/
-                    b.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>";
-                    b.innerHTML += arr[i].substr(val.length);
+                    b.innerHTML = "<strong>" + desc_substr + "</strong>";
+                    b.innerHTML += desc_substr_rest;
                     /*insert a input field that will hold the current array item's value:*/
-                    b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
+                    b.innerHTML += `<input type='hidden' value='${item.value}_${item.text}'>`;
                     /*execute a function when someone clicks on the item value (DIV element):*/
                     b.addEventListener("click", function (e) {
                         /*insert the value for the autocomplete text field:*/
-                        var selectedItem = this.getElementsByTagName("input")[0],
-                            selectedValue = selectedItem.value,
-                            selectedText = selectedItem.innerHTML;
+                        var hidden_input = this.getElementsByTagName("input")[0],
+                            data = hidden_input && hidden_input.value && hidden_input.value.split('_'),
+                            selectedValue = data && data[0],
+                            selectedText = data && data[1];
 
                         inp.value = "";
                         //Adding item to a list
                         var item = {
                             value: selectedValue,
-                            text: selectedValue
+                            text: selectedText
                         };
                         addItemToList(item);
 
@@ -172,8 +197,27 @@
         });
     }
 
-    Autocomplete.init = function (anInput, anArray) {
-        init(anInput, anArray);
+    Autocomplete.init = function (anInput, anAjaxUrl) {
+
+        fetch(anAjaxUrl)
+            .then(
+                function (response) {
+                    if (response.status !== 200) {
+                        console.log('Looks like there was a problem. Status Code: ' +
+                            response.status);
+                        return;
+                    }
+
+                    // Examine the text in the response
+                    response.json().then(function (data) {
+                        init(anInput, data);
+                    });
+                }
+            )
+            .catch(function (err) {
+                console.log('Fetch Error :', err);
+            });
+
     };
 
 })(window.Autocomplete = window.Autocomplete || {});
